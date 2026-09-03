@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        background-image: url('background.jpg'); /* Название вашей картинки фона */
+        background-size: cover;
+        background-position: center;
+        width: 100vw;
+        height: 100vh;
+        font-family: Arial, sans-serif;
+        overflow: hidden;
+    }
+
+    /* Блок с полосой загрузки */
+    .load-container {
+        position: absolute;
+        bottom: 90px; 
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60%;
+        text-align: center;
+        z-index: 100;
+    }
+
+    .load-title {
+        color: #4da6ff;
+        font-size: 20px;
+        text-align: left;
+        margin-bottom: 5px;
+        text-shadow: 0 0 5px #007bff;
+        letter-spacing: 1px;
+    }
+
+    /* Обертка */
+    .progress-wrapper {
+        position: relative;
+        width: 100%;
+        height: 8px;
+    }
+
+    /* Полоса */
+    .progress-bar {
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    /* Заполнение */
+    .progress-fill {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, #007bff, #00d4ff);
+        box-shadow: 0 0 10px #007bff;
+        border-radius: 4px;
+        transition: width 0.3s ease-in-out;
+    }
+
+    /* Проценты справа */
+    .percent-text {
+        position: absolute;
+        left: 100%;
+        margin-left: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #4da6ff;
+        font-size: 22px;
+        font-weight: bold;
+        text-shadow: 0 0 5px #007bff;
+        white-space: nowrap;
+    }
+</style>
+</head>
+<body>
+
+    <!-- Слой дождя -->
+    <canvas id="rain-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5;"></canvas>
+
+    <!-- Интерфейс загрузки -->
+    <div class="load-container">
+        <div class="load-title">ЗАГРУЗКА СЕРВЕРА</div>
+        <div class="progress-wrapper">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar"></div>
+            </div>
+            <div class="percent-text" id="percentText">0%</div>
+        </div>
+    </div>
+
+    <!-- Музыка -->
+    <audio id="bg-music" loop preload="auto">
+        <source src="music.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // ================== ТОЛЬКО ДОЖДЬ ==================
+        const canvas = document.getElementById('rain-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let raindrops = [];
+        const RAIN_COUNT = 150;
+
+        class Drop {
+            constructor() { this.reset(); }
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.len = Math.random() * 20 + 10;
+                this.speed = Math.random() * 5 + 10;
+                this.opacity = Math.random() * 0.5 + 0.2;
+            }
+            update() {
+                this.y += this.speed;
+                this.x -= this.speed * 0.3;
+                if (this.y > canvas.height || this.x < 0) {
+                    this.reset();
+                    this.y = 0;
+                }
+            }
+            draw() {
+                ctx.strokeStyle = `rgba(174, 194, 224, ${this.opacity})`;
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(this.x, this.y);
+                ctx.lineTo(this.x - this.len * 0.3, this.y + this.len);
+                ctx.stroke();
+            }
+        }
+
+        for (let i = 0; i < RAIN_COUNT; i++) {
+            raindrops.push(new Drop());
+        }
+
+        function animateRain() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            raindrops.forEach(drop => {
+                drop.update();
+                drop.draw();
+            });
+            requestAnimationFrame(animateRain);
+        }
+
+        animateRain();
+
+        // ================== ЛОГИКА GARRY'S MOD (РЕАЛЬНАЯ ЗАГРУЗКА) ==================
+        // Эти функции вызывает сам Garry's Mod, когда игрок качает карту или ресурсы.
+        
+        window.LoadingProgressChanged = function(progress) {
+            // progress приходит от 0 до 1 (например, 0.5)
+            var percent = Math.round(progress * 100);
+            document.getElementById('progressBar').style.width = percent + '%';
+            document.getElementById('percentText').innerText = percent + '%';
+        };
+
+        window.SetStatusChanged = function(status) {
+            // Если хотите выводить статус (например, "Скачивание материалов"), 
+            // можно поменять текст в .load-title
+            console.log(status);
+        };
+
+        // ================== ЛОГИКА МУЗЫКИ ==================
+        var audio = document.getElementById('bg-music');
+
+        // Запускаем музыку при первом клике или нажатии клавиши
+        // (Браузеры GMod блокируют звук без действия пользователя)
+        document.addEventListener('click', function() {
+            audio.play();
+        });
+        document.addEventListener('keydown', function() {
+            audio.play();
+        });
+
+        // Кнопка 'M' для выключения/включения звука
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'm') {
+                audio.muted = !audio.muted;
+            }
+        });
+    </script>
+
+</body>
+</html>
