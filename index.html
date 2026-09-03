@@ -5,13 +5,17 @@
     body {
         margin: 0;
         padding: 0;
-        background-image: url('background.jpg'); /* Название вашей картинки фона */
+        background-image: url('background.jpg'); /* Проверьте название картинки */
         background-size: cover;
         background-position: center;
         width: 100vw;
         height: 100vh;
         font-family: Arial, sans-serif;
         overflow: hidden;
+        
+        /* ===== ЗАПРЕТ ВЫДЕЛЕНИЯ ТЕКСТА ===== */
+        user-select: none;
+        -webkit-user-select: none;
     }
 
     /* Блок с полосой загрузки */
@@ -149,7 +153,7 @@
         animateRain();
 
         // ================== ЛОГИКА GARRY'S MOD (РЕАЛЬНАЯ ЗАГРУЗКА) ==================
-        // Эти функции вызывает сам Garry's Mod, когда игрок качает карту или ресурсы.
+        // Эти функции вызывает сам Garry's Mod.
         
         window.LoadingProgressChanged = function(progress) {
             // progress приходит от 0 до 1 (например, 0.5)
@@ -159,8 +163,6 @@
         };
 
         window.SetStatusChanged = function(status) {
-            // Если хотите выводить статус (например, "Скачивание материалов"), 
-            // можно поменять текст в .load-title
             console.log(status);
         };
 
@@ -168,7 +170,6 @@
         var audio = document.getElementById('bg-music');
 
         // Запускаем музыку при первом клике или нажатии клавиши
-        // (Браузеры GMod блокируют звук без действия пользователя)
         document.addEventListener('click', function() {
             audio.play();
         });
